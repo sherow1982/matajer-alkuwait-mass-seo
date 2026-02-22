@@ -28,6 +28,17 @@
         .hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 20px; }
         .hero p { font-size: 20px; opacity: 0.95; margin-bottom: 30px; }
         
+        /* Search Box */
+        .search-box { max-width: 600px; margin: 0 auto; position: relative; }
+        .search-box input { width: 100%; padding: 18px 25px; border: none; border-radius: 50px; font-size: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); outline: none; }
+        .search-results { position: absolute; top: 65px; left: 0; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); max-height: 400px; overflow-y: auto; display: none; z-index: 1000; }
+        .search-result-item { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; align-items: center; gap: 15px; text-decoration: none; color: #333; }
+        .search-result-item:hover { background: #f8f9fa; }
+        .search-result-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .search-result-info { flex: 1; }
+        .search-result-title { font-weight: 600; margin-bottom: 5px; color: #2d2a2a; }
+        .search-result-price { color: #83b735; font-weight: 700; }
+        
         /* Stats */
         .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1200px; margin: -50px auto 60px; padding: 0 20px; }
         .stat-card { background: #fff; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -48,6 +59,9 @@
         .product-price { font-size: 24px; font-weight: 700; color: #83b735; margin-bottom: 15px; }
         .product-btn { background: #83b735; color: #fff; padding: 12px; text-align: center; border-radius: 5px; font-weight: 600; transition: all 0.3s; }
         .product-card:hover .product-btn { background: #6a9629; }
+        
+        .view-all-btn { display: inline-block; background: #83b735; color: #fff; padding: 18px 50px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 18px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(131,183,53,0.3); }
+        .view-all-btn:hover { background: #6a9629; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(131,183,53,0.4); }
         
         /* Features */
         .features { background: #fff; padding: 60px 20px; margin: 60px 0; }
@@ -86,6 +100,11 @@
     <section class="hero">
         <h1>أفضل الأسعار والعروض الحصرية</h1>
         <p>تسوق من أكثر من 4000 منتج بأفضل الأسعار في الكويت</p>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 ابحث عن منتج..." onkeyup="searchProducts()">
+            <div id="searchResults" class="search-results"></div>
+        </div>
     </section>
     
     <div class="stats">
@@ -110,6 +129,9 @@
     <section class="products-section">
         <h2 class="section-title">المنتجات المميزة</h2>
         <div class="products-grid" id="productsGrid"></div>
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/products.html" class="view-all-btn">شاهد جميع المنتجات (4,109) →</a>
+        </div>
     </section>
     
     <section class="features">
@@ -143,11 +165,14 @@
     </footer>
     
     <script>
+        let allProductsData = [];
+        
         fetch('products.json')
             .then(res => res.json())
             .then(products => {
+                allProductsData = products;
                 const grid = document.getElementById('productsGrid');
-                products.forEach(product => {
+                products.slice(0, 50).forEach(product => {
                     const card = document.createElement('a');
                     card.className = 'product-card';
                     card.href = product.url;
@@ -163,6 +188,44 @@
                     grid.appendChild(card);
                 });
             });
+        
+        function searchProducts() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (input.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const filtered = allProductsData.filter(p => 
+                p.title.toLowerCase().includes(input)
+            ).slice(0, 10);
+            
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">لا توجد نتائج</div>';
+                resultsDiv.style.display = 'block';
+                return;
+            }
+            
+            resultsDiv.innerHTML = filtered.map(p => `
+                <a href="${p.url}" class="search-result-item">
+                    <img src="${p.image}" class="search-result-img" onerror="this.src='https://via.placeholder.com/60x60/83b735/ffffff?text=صورة'">
+                    <div class="search-result-info">
+                        <div class="search-result-title">${p.title}</div>
+                        <div class="search-result-price">${p.price} KWD</div>
+                    </div>
+                </a>
+            `).join('');
+            resultsDiv.style.display = 'block';
+        }
+        
+        // إخفاء النتائج عند النقر خارج مربع البحث
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-box')) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

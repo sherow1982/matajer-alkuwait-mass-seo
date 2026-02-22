@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جميع المنتجات - متاجر الكويت</title>
+    <meta name="description" content="تصفح جميع منتجات متاجر الكويت - أكثر من 4000 منتج بأفضل الأسعار">
+    <meta name="robots" content="index, follow">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f8f9fa; color: #333; }
+        
+        .top-bar { background: #2d2a2a; color: #fff; padding: 10px 0; font-size: 13px; text-align: center; }
+        
+        .header { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header .container { max-width: 1200px; margin: 0 auto; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 700; color: #83b735; text-decoration: none; }
+        .whatsapp-btn { background: #25D366; color: #fff; padding: 10px 25px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 14px; }
+        
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .page-title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 40px; color: #2d2a2a; }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        
+        .product-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        .product-image { width: 100%; height: 280px; object-fit: cover; }
+        .product-info { padding: 20px; }
+        .product-category { color: #83b735; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .product-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #2d2a2a; line-height: 1.4; }
+        .product-price { font-size: 24px; font-weight: 700; color: #83b735; margin-bottom: 15px; }
+        .product-btn { background: #83b735; color: #fff; padding: 12px; text-align: center; border-radius: 5px; font-weight: 600; transition: all 0.3s; }
+        .product-card:hover .product-btn { background: #6a9629; }
+        
+        .pagination { display: flex; justify-content: center; gap: 10px; margin: 40px 0; flex-wrap: wrap; }
+        .page-btn { padding: 10px 15px; background: #fff; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; text-decoration: none; color: #333; font-weight: 600; transition: all 0.3s; }
+        .page-btn:hover { background: #83b735; color: #fff; border-color: #83b735; }
+        .page-btn.active { background: #83b735; color: #fff; border-color: #83b735; }
+        
+        .footer { background: #2d2a2a; color: #fff; padding: 30px 20px; text-align: center; margin-top: 60px; }
+        .footer a { color: #83b735; text-decoration: none; }
+        
+        @media (max-width: 768px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+            .product-image { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">🚚 توصيل مجاني لجميع مناطق الكويت | 📞 خدمة العملاء 24/7</div>
+    
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">🛍️ متاجر الكويت</a>
+            <a href="https://wa.me/201110760081?text=مرحباً، أريد الاستفسار عن المنتجات" class="whatsapp-btn">📱 تواصل واتساب</a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1 class="page-title">جميع المنتجات (<span id="totalProducts">0</span>)</h1>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2025 متاجر الكويت - جميع الحقوق محفوظة</p>
+        <p><a href="/">العودة للرئيسية</a> | <a href="/sitemap.xml">خريطة الموقع</a></p>
+    </footer>
+    
+    <script>
+        const productsPerPage = 48;
+        let currentPage = 1;
+        let allProducts = [];
+        
+        fetch('products.json')
+            .then(res => res.json())
+            .then(products => {
+                allProducts = products;
+                document.getElementById('totalProducts').textContent = products.length;
+                displayProducts(1);
+                createPagination();
+            });
+        
+        function displayProducts(page) {
+            currentPage = page;
+            const start = (page - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const pageProducts = allProducts.slice(start, end);
+            
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            
+            pageProducts.forEach(product => {
+                const card = document.createElement('a');
+                card.className = 'product-card';
+                card.href = product.url;
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.title}" class="product-image" loading="lazy" onerror="this.src='https://via.placeholder.com/280x280/83b735/ffffff?text=صورة'">
+                    <div class="product-info">
+                        <div class="product-category">الكويت</div>
+                        <div class="product-title">${product.title}</div>
+                        <div class="product-price">${product.price} KWD</div>
+                        <div class="product-btn">عرض التفاصيل</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function createPagination() {
+            const totalPages = Math.ceil(allProducts.length / productsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            // زر السابق
+            if (currentPage > 1) {
+                const prev = document.createElement('a');
+                prev.className = 'page-btn';
+                prev.textContent = '← السابق';
+                prev.onclick = () => { displayProducts(currentPage - 1); createPagination(); };
+                pagination.appendChild(prev);
+            }
+            
+            // أرقام الصفحات
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                const first = document.createElement('a');
+                first.className = 'page-btn';
+                first.textContent = '1';
+                first.onclick = () => { displayProducts(1); createPagination(); };
+                pagination.appendChild(first);
+                
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-btn';
+                    dots.textContent = '...';
+                    dots.style.cursor = 'default';
+                    pagination.appendChild(dots);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('a');
+                btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = () => { displayProducts(i); createPagination(); };
+                pagination.appendChild(btn);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-btn';
+                    dots.textContent = '...';
+                    dots.style.cursor = 'default';
+                    pagination.appendChild(dots);
+                }
+                
+                const last = document.createElement('a');
+                last.className = 'page-btn';
+                last.textContent = totalPages;
+                last.onclick = () => { displayProducts(totalPages); createPagination(); };
+                pagination.appendChild(last);
+            }
+            
+            // زر التالي
+            if (currentPage < totalPages) {
+                const next = document.createElement('a');
+                next.className = 'page-btn';
+                next.textContent = 'التالي →';
+                next.onclick = () => { displayProducts(currentPage + 1); createPagination(); };
+                pagination.appendChild(next);
+            }
+        }
+    </script>
+</body>
+</html>

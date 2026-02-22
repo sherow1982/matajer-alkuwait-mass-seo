@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://matajer-alkuwait.pages.dev/sitemap.xml
+Sitemap: https://matajer-alkuwait-mass-seo.pages.dev/sitemap.xml

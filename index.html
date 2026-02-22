@@ -143,31 +143,26 @@
     </footer>
     
     <script>
-        // عرض 20 منتج عشوائي
-        const products = [];
-        for(let i = 0; i <= 999; i++) {
-            products.push(i);
-        }
-        
-        const shuffled = products.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 20);
-        
-        const grid = document.getElementById('productsGrid');
-        selected.forEach(id => {
-            const card = document.createElement('a');
-            card.className = 'product-card';
-            card.href = `product-${id}-الكويت.html`;
-            card.innerHTML = `
-                <img src="https://via.placeholder.com/280x280/83b735/ffffff?text=منتج+${id}" alt="منتج ${id}" class="product-image" loading="lazy">
-                <div class="product-info">
-                    <div class="product-category">الكويت</div>
-                    <div class="product-title">منتج رقم ${id}</div>
-                    <div class="product-price">KWD 0.00</div>
-                    <div class="product-btn">عرض التفاصيل</div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+        fetch('products.json')
+            .then(res => res.json())
+            .then(products => {
+                const grid = document.getElementById('productsGrid');
+                products.forEach(product => {
+                    const card = document.createElement('a');
+                    card.className = 'product-card';
+                    card.href = product.url;
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.title}" class="product-image" loading="lazy" onerror="this.src='https://via.placeholder.com/280x280/83b735/ffffff?text=صورة'">
+                        <div class="product-info">
+                            <div class="product-category">الكويت</div>
+                            <div class="product-title">${product.title}</div>
+                            <div class="product-price">${product.price} KWD</div>
+                            <div class="product-btn">عرض التفاصيل</div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
     </script>
 </body>
 </html>
